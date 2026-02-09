@@ -1,0 +1,24 @@
+name: Update VPN Servers
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # Every hour
+  workflow_dispatch:  # Allows manual trigger
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        
+      - name: Fetch VPN servers
+        run: |
+          curl -L -o servers.csv https://www.vpngate.net/api/iphone/
+          
+      - name: Commit and push if changed
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git add servers.csv
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update VPN servers - $(date)" && git push)
